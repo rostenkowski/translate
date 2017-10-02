@@ -1,0 +1,5 @@
+extensions:
+	translate: Rostenkowski\Translate
+
+translate:
+	default: cs_CZ

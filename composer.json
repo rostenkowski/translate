@@ -1,0 +1,22 @@
+{
+  "name": "rostenkowski/translate",
+  "type": "library",
+  "minimum-stability": "dev",
+  "require": {
+    "php": ">=7.1",
+    "nette/di": "^3.0",
+    "nette/neon": "dev-master",
+    "nette/safe-stream": "dev-master",
+    "nette/utils": "^3.0"
+  },
+  "require-dev": {
+    "nette/tester": "dev-master"
+  },
+  "autoload": {
+    "psr-4": {
+      "Rostenkowski\\": [
+        "src"
+      ]
+    }
+  }
+}
