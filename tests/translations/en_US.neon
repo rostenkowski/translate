@@ -1,0 +1,10 @@
+"Welcome!": "Welcome!"
+
+"You have %s unread messages.":
+	- 'You have <span class="badge">%s</span> unread message.'
+	- 'You have <span class="badge">%s</span> unread messages.'
+
+"You have %s points. Thank you %s!":
+	- 'You have <span class="badge">%s</span> point.  Thank you %s!'
+	- 'You have <span class="badge">%s</span> points. Thank you %s!'
+	- 'You have <span class="badge">%s</span> points. Thank you %s!'
