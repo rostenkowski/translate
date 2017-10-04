@@ -1,6 +1,6 @@
 # Translate 
 
-High Performance Localization Component for PHP 7
+*High Performance Localization Component for PHP 7*
 
 [![release](http://github-release-version.herokuapp.com/github/rostenkowski/translate/release.svg?style=flat)](https://github.com/rostenkowski/translate/releases/latest)
 [![Build Status](https://travis-ci.org/rostenkowski/translate.svg?branch=master)](https://travis-ci.org/rostenkowski/translate)
