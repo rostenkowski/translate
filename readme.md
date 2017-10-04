@@ -6,7 +6,6 @@ High Performance Localization Component for PHP 7
 [![Build Status](https://travis-ci.org/rostenkowski/translate.svg?branch=master)](https://travis-ci.org/rostenkowski/translate)
 [![Coverage Status](https://coveralls.io/repos/github/rostenkowski/translate/badge.svg)](https://coveralls.io/github/rostenkowski/translate)
 [![Code Climate](https://codeclimate.com/github/rostenkowski/translate/badges/gpa.svg)](https://codeclimate.com/github/rostenkowski/translate)
-[![Daily Downloads](https://poser.pugx.org/rostenkowski/translate/d/daily)](https://packagist.org/packages/rostenkowski/translate)
 [![License](https://img.shields.io/badge/license-New%20BSD-blue.svg)](https://github.com/rostenkowski/translate/blob/master/LICENSE)
 
 ```bash
