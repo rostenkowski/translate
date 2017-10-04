@@ -1,5 +1,5 @@
 extensions:
-	translate: Rostenkowski\Translate
+	translate: Rostenkowski\Translate\Extension
 
 translate:
 	default: cs_CZ

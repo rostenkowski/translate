@@ -1,14 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Rostenkowski;
+namespace Rostenkowski\Translate;
 
 
 use Nette\DI\CompilerExtension;
 use Nette\DI\Helpers;
 use Rostenkowski\Translate\NeonDictionary\NeonDictionaryFactory;
-use Rostenkowski\Translate\Translator;
 
-class Translate extends CompilerExtension
+class Extension extends CompilerExtension
 {
 
 	private $defaults = [
