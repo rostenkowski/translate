@@ -2,7 +2,7 @@
 
 *High Performance Localization Component for PHP 7*
 
-[![Release](http://github-release-version.herokuapp.com/github/rostenkowski/translate/release.svg?style=flat)](https://github.com/rostenkowski/translate/releases/latest)
+[![Release](https://img.shields.io/github/release/rostenkowski/translate.svg?maxAge=2592000)](https://github.com/rostenkowski/translate/releases/latest)
 [![Build Status](https://travis-ci.org/rostenkowski/translate.svg?branch=master)](https://travis-ci.org/rostenkowski/translate)
 [![Coverage Status](https://coveralls.io/repos/github/rostenkowski/translate/badge.svg)](https://coveralls.io/github/rostenkowski/translate)
 [![Code Climate](https://codeclimate.com/github/rostenkowski/translate/badges/gpa.svg)](https://codeclimate.com/github/rostenkowski/translate)
