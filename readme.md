@@ -6,7 +6,6 @@
 [![Coverage Status](https://coveralls.io/repos/github/rostenkowski/translate/badge.svg)](https://coveralls.io/github/rostenkowski/translate)
 [![Code Climate](https://codeclimate.com/github/rostenkowski/translate/badges/gpa.svg)](https://codeclimate.com/github/rostenkowski/translate)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/rostenkowski/translate/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/rostenkowski/translate/?branch=master)
-[![License](https://img.shields.io/badge/license-New%20BSD-blue.svg)](https://github.com/rostenkowski/translate/blob/master/LICENSE)
 
 ```bash
 composer require rostenkowski/translate
