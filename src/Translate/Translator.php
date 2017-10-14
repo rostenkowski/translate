@@ -114,7 +114,7 @@ final class Translator implements TranslatorInterface
 		// avoid processing translation for empty values
 		if ($message === NULL || $message === '') {
 
-			return $message;
+			return '';
 		}
 
 		// avoid non-string values
