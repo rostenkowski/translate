@@ -137,10 +137,16 @@ final class Translator implements TranslatorInterface
 			if (is_array($translation)) {
 
 				// choose the right form
-				$form = $this->plural($count);
+				if ($count) {
+					$form = $this->plural($count);
+				} else {
+					// chose max form
+					$form = count($translation) - 1;
+				}
 
 				// the right plural form may not be defined
 				if (!array_key_exists($form, $translation)) {
+					// continue until some translation form is found
 					while ($form > 0) {
 						if (array_key_exists(--$form, $translation)) {
 							break;
@@ -153,50 +159,53 @@ final class Translator implements TranslatorInterface
 
 			} else {
 
-				// simple translation
-				$result = $translation;
-			}
-
-		} else {
-
-			// use untranslated message as translation
-			$result = $message;
+			// simple translation
+			$result = $translation;
 		}
 
-		$args = func_get_args();
+	} else
+{
 
-		// remove message
-		array_shift($args);
+	// use untranslated message as translation
+$result = $message;
+}
 
-		// remove count if not provided
-		if ($count === NULL || $count === 0) {
-			array_shift($args);
-		}
 
-		if (count($args)) {
+$args = func_get_args();
 
-			// preserve some nette placeholders
-			$template = str_replace(['%label', '%name', '%value'], ['%%label', '%%name', '%%value'], $result);
+// remove message
+array_shift($args);
 
-			// apply parameters
-			$result = vsprintf($template, $args);
-		}
+// remove count if not provided
+if ($count === NULL || $count === 0) {
+	array_shift($args);
+}
 
-		return $result;
+if (count($args)) {
+
+	// preserve some nette placeholders
+	$template = str_replace(['%label', '%name', '%value'], ['%%label', '%%name', '%%value'], $result);
+
+	// apply parameters
+	$result = vsprintf($template, $args);
+}
+
+return $result;
+}
+
+
+private
+function plural(int $count): int
+{
+	$scheme = $this->defaultScheme;
+
+	if (isset($this->schemes[$this->locale])) {
+		$scheme = $this->schemes[$this->locale];
 	}
 
+	$code = preg_replace('/([a-z]+)/', '$$1', "n=$count; " . $scheme) . '; return (int) $plural;';
 
-	private function plural(int $count): int
-	{
-		$scheme = $this->defaultScheme;
-
-		if (isset($this->schemes[$this->locale])) {
-			$scheme = $this->schemes[$this->locale];
-		}
-
-		$code = preg_replace('/([a-z]+)/', '$$1', "n=$count; " . $scheme) . '; return (int) $plural;';
-
-		return eval($code);
-	}
+	return eval($code);
+}
 
 }

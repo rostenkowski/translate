@@ -58,3 +58,6 @@ $message = [];
 Assert::exception(function () use ($translator, $message) {
 	$translator->translate($message);
 }, TranslatorException::class, sprintf("Message must be string, but %s given.", var_export($message, true)));
+
+// test: NULL count
+Assert::same('Máte <span class="badge">%s</span> nepřečtených zpráv.', $translator->translate('You have %s unread messages.', NULL));
