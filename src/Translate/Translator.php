@@ -159,53 +159,55 @@ final class Translator implements TranslatorInterface
 
 			} else {
 
-			// simple translation
-			$result = $translation;
+				// simple translation
+				$result = $translation;
+			}
+
+			// use untranslated message as translation for empty translation
+			if ($result === '') {
+				$result = $message;
+			}
+
+		} else {
+
+			// use untranslated message as translation
+			$result = $message;
 		}
 
-	} else
-{
+		$args = func_get_args();
 
-	// use untranslated message as translation
-$result = $message;
-}
+		// remove message
+		array_shift($args);
 
+		// remove count if not provided
+		if ($count === NULL || $count === 0) {
+			array_shift($args);
+		}
 
-$args = func_get_args();
+		if (count($args)) {
 
-// remove message
-array_shift($args);
+			// preserve some nette placeholders
+			$template = str_replace(['%label', '%name', '%value'], ['%%label', '%%name', '%%value'], $result);
 
-// remove count if not provided
-if ($count === NULL || $count === 0) {
-	array_shift($args);
-}
+			// apply parameters
+			$result = vsprintf($template, $args);
+		}
 
-if (count($args)) {
-
-	// preserve some nette placeholders
-	$template = str_replace(['%label', '%name', '%value'], ['%%label', '%%name', '%%value'], $result);
-
-	// apply parameters
-	$result = vsprintf($template, $args);
-}
-
-return $result;
-}
-
-
-private
-function plural(int $count): int
-{
-	$scheme = $this->defaultScheme;
-
-	if (isset($this->schemes[$this->locale])) {
-		$scheme = $this->schemes[$this->locale];
+		return $result;
 	}
 
-	$code = preg_replace('/([a-z]+)/', '$$1', "n=$count; " . $scheme) . '; return (int) $plural;';
 
-	return eval($code);
-}
+	private function plural(int $count): int
+	{
+		$scheme = $this->defaultScheme;
+
+		if (isset($this->schemes[$this->locale])) {
+			$scheme = $this->schemes[$this->locale];
+		}
+
+		$code = preg_replace('/([a-z]+)/', '$$1', "n=$count; " . $scheme) . '; return (int) $plural;';
+
+		return eval($code);
+	}
 
 }

@@ -61,3 +61,6 @@ Assert::exception(function () use ($translator, $message) {
 
 // test: NULL count
 Assert::same('Máte <span class="badge">%s</span> nepřečtených zpráv.', $translator->translate('You have %s unread messages.', NULL));
+
+// test: accidentally empty translation
+Assert::same('Article author', $translator->translate('Article author'));

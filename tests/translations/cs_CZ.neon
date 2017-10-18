@@ -8,3 +8,5 @@
 "You have %s unread articles.":
 	- 'Máte <span class="badge">%s</span> nepřečtený článek.'
 	- 'Máte <span class="badge">%s</span> nepřečtené články.'
+
+"Article author": ''
