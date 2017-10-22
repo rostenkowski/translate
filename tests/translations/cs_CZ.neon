@@ -1,12 +1,12 @@
 "Welcome!": "Vítejte!"
 
 "You have %s unread messages.":
-	- 'Máte <span class="badge">%s</span> nepřečtenou zprávu.'
-	- 'Máte <span class="badge">%s</span> nepřečtené zprávy.'
-	- 'Máte <span class="badge">%s</span> nepřečtených zpráv.'
+	- 'Máte %s nepřečtenou zprávu.'
+	- 'Máte %s nepřečtené zprávy.'
+	- 'Máte %s nepřečtených zpráv.'
 
 "You have %s unread articles.":
-	- 'Máte <span class="badge">%s</span> nepřečtený článek.'
-	- 'Máte <span class="badge">%s</span> nepřečtené články.'
+	- 'Máte %s nepřečtený článek.'
+	- 'Máte %s nepřečtené články.'
 
 "Article author": ''

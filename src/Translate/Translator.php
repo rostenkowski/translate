@@ -3,6 +3,8 @@
 namespace Rostenkowski\Translate;
 
 
+use function print_r;
+
 final class Translator implements TranslatorInterface
 {
 
@@ -135,6 +137,8 @@ final class Translator implements TranslatorInterface
 
 			// multiple plural forms of this message are available
 			if (is_array($translation)) {
+
+				print_r($translation);
 
 				// choose the right form
 				if ($count) {
