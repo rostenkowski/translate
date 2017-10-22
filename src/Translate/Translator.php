@@ -36,18 +36,34 @@ final class Translator implements TranslatorInterface
 	private $dictionaryFactory;
 
 	/**
-	 * default plural scheme (english-compatible)
+	 * default plural schema (english-compatible)
 	 *
 	 * @var string
 	 */
 	private $defaultScheme = 'nplurals=2; plural=(n != 1)';
 
+
 	/**
-	 * locale-indexed map of irregular plural schemes
+	 * @var int
+	 */
+	private $evalCounter = 0;
+
+	/**
+	 * @var int
+	 */
+	private $evalCacheHitCounter = 0;
+
+	/**
+	 * @var array
+	 */
+	private $evalCache = [];
+
+	/**
+	 * locale-indexed map of irregular plural schemas
 	 *
 	 * @var string[]
 	 */
-	private $schemes = [
+	private $schemas = [
 		// czech
 		'cs_CZ' => 'nplurals=3; plural=(n==1) ? 0 : ((n>=2 && n<=4) ? 1 : 2)',
 		// croatian
@@ -99,21 +115,6 @@ final class Translator implements TranslatorInterface
 		// chinese
 		'zh_CN' => 'nplurals=1; plural=0',
 	];
-
-	/**
-	 * @var int
-	 */
-	private $evalCounter = 0;
-
-	/**
-	 * @var int
-	 */
-	private $evalCacheHitCounter = 0;
-
-	/**
-	 * @var array
-	 */
-	private $evalCache = [];
 
 
 	public function __construct(DictionaryFactoryInterface $dictionaryFactory)
@@ -250,14 +251,14 @@ final class Translator implements TranslatorInterface
 			return $this->evalCache[$cacheKey];
 		}
 
-		// evaluate scheme
-		$scheme = $this->defaultScheme;
-		if (isset($this->schemes[$this->locale])) {
-			$scheme = $this->schemes[$this->locale];
+		// evaluate schema
+		$schema = $this->defaultScheme;
+		if (isset($this->schemas[$this->locale])) {
+			$schema = $this->schemas[$this->locale];
 		}
 
 		// create php code from the schema
-		$code = preg_replace('/([a-z]+)/', '$$1', "n=$count; " . $scheme) . '; return (int) $plural;';
+		$code = preg_replace('/([a-z]+)/', '$$1', "n=$count; " . $schema) . '; return (int) $plural;';
 		$this->evalCounter++;
 
 		return $this->evalCache[$cacheKey] = eval($code);
