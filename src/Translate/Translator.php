@@ -173,10 +173,8 @@ final class Translator implements TranslatorInterface
 
 			$translation = $this->dictionary->get($message);
 
-			// plural
+			// process plural
 			if (is_array($translation)) {
-
-				$form = 0;
 
 				// strict mode
 				if ($count === NULL && $this->throwExceptions) {
@@ -184,14 +182,15 @@ final class Translator implements TranslatorInterface
 				}
 
 				// choose the right plural form based on count
+				$form = 0;
 				if ($count !== NULL) {
 					$form = $this->plural($count);
 				}
 
-				// count is NULL (?) or plural form is not defined
+				// count is NULL (silent mode) or the right plural form is not defined for this translation
 				if ($count === NULL || !array_key_exists($form, $translation)) {
 
-					// fallback to latest plural form defined
+					// fallback to the last plural form defined
 					end($translation);
 					$form = key($translation);
 				}
