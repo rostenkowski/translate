@@ -178,14 +178,14 @@ final class Translator implements TranslatorInterface
 
 				$form = 0;
 
-				// choose the right plural form based on count
-				if ($count !== NULL) {
-					$form = $this->plural($count);
-				}
-
 				// strict mode
 				if ($count === NULL && $this->throwExceptions) {
 					throw new TranslatorException('NULL count provided for parametrized plural message.');
+				}
+
+				// choose the right plural form based on count
+				if ($count !== NULL) {
+					$form = $this->plural($count);
 				}
 
 				// count is NULL (?) or plural form is not defined
