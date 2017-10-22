@@ -70,10 +70,18 @@ class MyPresenter {
 
 ### Advanced options
 
-You can use special plural form for the count of 0 (zero). 
+You can use special plural form for the count of `0` (zero). 
+In translation source file you can define this form under special index `-1`.
+```yaml
+"%s problems detected":
+  -1: "No problem detected"
+  - "%s problem detected" 
+  - "%s problems detected" 
+``` 
 ```php
-$translator->
-
+$translator->useSpecialZeroForm = true;
+$translator->translate('%s problems detected', 0);
+// "No problem detected" instead of "0 problems detected"
 ```
 
 ### Usage with plain PHP
