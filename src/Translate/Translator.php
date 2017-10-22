@@ -147,7 +147,7 @@ final class Translator implements TranslatorInterface
 
 	public function translate($message, int $count = NULL): string
 	{
-		// avoid processing translation for empty values
+		// avoid processing for empty values
 		if ($message === NULL || $message === '') {
 
 			return '';
