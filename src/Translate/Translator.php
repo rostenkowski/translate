@@ -3,10 +3,15 @@
 namespace Rostenkowski\Translate;
 
 
-use function print_r;
+use function array_key_exists;
+use function key;
 
 final class Translator implements TranslatorInterface
 {
+
+	public const ZERO_INDEX = -1;
+
+	public static $useSpecialZeroForm = false;
 
 	/**
 	 * current locale
@@ -33,7 +38,7 @@ final class Translator implements TranslatorInterface
 	private $defaultScheme = 'nplurals=2; plural=(n != 1)';
 
 	/**
-	 * locale-indexed map of irregular schemes
+	 * locale-indexed map of irregular plural schemes
 	 *
 	 * @var string[]
 	 */
@@ -90,10 +95,34 @@ final class Translator implements TranslatorInterface
 		'zh_CN' => 'nplurals=1; plural=0',
 	];
 
+	/**
+	 * @var int
+	 */
+	private $evalCounter = 0;
+
+	/**
+	 * @var int
+	 */
+	private $evalCacheHitCounter = 0;
+
+	/**
+	 * @var array
+	 */
+	private $evalCache = [];
+
 
 	public function __construct(DictionaryFactoryInterface $dictionaryFactory)
 	{
 		$this->dictionaryFactory = $dictionaryFactory;
+	}
+
+
+	public function getStats()
+	{
+		return [
+			'evalCacheHitCounter' => $this->evalCacheHitCounter,
+			'evalCounter'         => $this->evalCounter,
+		];
 	}
 
 
@@ -138,10 +167,8 @@ final class Translator implements TranslatorInterface
 			// multiple plural forms of this message are available
 			if (is_array($translation)) {
 
-				print_r($translation);
-
 				// choose the right form
-				if ($count) {
+				if ($count !== NULL) {
 					$form = $this->plural($count);
 				} else {
 					// chose max form
@@ -150,12 +177,9 @@ final class Translator implements TranslatorInterface
 
 				// the right plural form may not be defined
 				if (!array_key_exists($form, $translation)) {
-					// continue until some translation form is found
-					while ($form > 0) {
-						if (array_key_exists(--$form, $translation)) {
-							break;
-						}
-					}
+					// use the last defined
+					end($translation);
+					$form = key($translation);
 				}
 
 				// custom plural form translation
@@ -178,13 +202,14 @@ final class Translator implements TranslatorInterface
 			$result = $message;
 		}
 
+		// process parameters
 		$args = func_get_args();
 
 		// remove message
 		array_shift($args);
 
-		// remove count if not provided
-		if ($count === NULL || $count === 0) {
+		// remove count if not provided or explicitly set to NULL
+		if ($count === NULL) {
 			array_shift($args);
 		}
 
@@ -203,15 +228,30 @@ final class Translator implements TranslatorInterface
 
 	private function plural(int $count): int
 	{
-		$scheme = $this->defaultScheme;
+		// special zero
+		if ($this::$useSpecialZeroForm === true && $count === 0) {
+			return self::ZERO_INDEX;
+		}
 
+		// cache eval results
+		if (array_key_exists($cacheKey = "$this->locale.$count", $this->evalCache)) {
+			$this->evalCacheHitCounter++;
+
+			return $this->evalCache[$cacheKey];
+		}
+
+		// evaluate scheme
+		$scheme = $this->defaultScheme;
 		if (isset($this->schemes[$this->locale])) {
 			$scheme = $this->schemes[$this->locale];
 		}
 
+		// create php code from the schema
 		$code = preg_replace('/([a-z]+)/', '$$1', "n=$count; " . $scheme) . '; return (int) $plural;';
 
-		return eval($code);
+		$this->evalCounter++;
+
+		return $this->evalCache[$cacheKey] = eval($code);
 	}
 
 }

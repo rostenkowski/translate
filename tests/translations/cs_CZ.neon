@@ -10,3 +10,9 @@
 	- 'Máte %s nepřečtené články.'
 
 "Article author": ''
+
+"You have %s seconds":
+	-1: Čas vypršel
+	- Máte 1 vteřinu
+	- Máte %s vteřiny
+	- Máte %s vteřin
