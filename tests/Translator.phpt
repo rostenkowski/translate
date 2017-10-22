@@ -62,12 +62,19 @@ Assert::exception(function () use ($translator, $message) {
 // test: NULL count
 Assert::same('Máte %s nepřečtených zpráv.', $translator->translate('You have %s unread messages.', NULL));
 
+// test: NULL count in strict mode
+Assert::exception(function () use ($translator) {
+	$translator->throwExceptions = true;
+	$translator->translate('You have %s unread messages.', NULL);
+}, TranslatorException::class, 'NULL count provided for parametrized plural message.');
+
 // test: accidentally empty translation
 Assert::same('Article author', $translator->translate('Article author'));
 
 // test: special form for the parametrized translation with count = 0 (zero)
 // special zero mode is opt-in
 $translator->useSpecialZeroForm = true;
+$translator->throwExceptions = true;
 Assert::same("Čas vypršel", $translator->translate('You have %s seconds', 0));
 Assert::same("Máte 1 vteřinu", $translator->translate('You have %s seconds', 1));
 Assert::same("Máte 2 vteřiny", $translator->translate('You have %s seconds', 2));
@@ -77,3 +84,6 @@ Assert::same("Máte 5 vteřin", $translator->translate('You have %s seconds', 5)
 $stats = $translator->getStats();
 Assert::same(5, $stats['evalCacheHitCounter']);
 Assert::same(6, $stats['evalCounter']);
+
+// test: string objects
+Assert::same('foo', $translator->translate(new class { function __toString() { return 'foo'; }}));

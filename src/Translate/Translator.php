@@ -4,7 +4,10 @@ namespace Rostenkowski\Translate;
 
 
 use function array_key_exists;
+use function end;
+use function is_object;
 use function key;
+use function method_exists;
 
 final class Translator implements TranslatorInterface
 {
@@ -12,6 +15,8 @@ final class Translator implements TranslatorInterface
 	public const ZERO_INDEX = -1;
 
 	public $useSpecialZeroForm = false;
+
+	public $throwExceptions = false;
 
 	/**
 	 * current locale
@@ -148,10 +153,13 @@ final class Translator implements TranslatorInterface
 			return '';
 		}
 
-		// avoid non-string values
+		// check message to be string
 		if (!is_string($message)) {
-
-			throw TranslatorException::nonStringMessage($message);
+			if (is_object($message) && method_exists($message, '__toString')) {
+				$message = (string) $message;
+			} else {
+				throw new TranslatorException(sprintf("Message must be string, but %s given.", var_export($message, true)));
+			}
 		}
 
 		// create dictionary on first access
@@ -159,25 +167,31 @@ final class Translator implements TranslatorInterface
 			$this->dictionary = $this->dictionaryFactory->create($this->locale);
 		}
 
-		// translation exists
+		// translation begins
+		$result = $message;
 		if ($this->dictionary->has($message)) {
 
 			$translation = $this->dictionary->get($message);
 
-			// multiple plural forms of this message are available
+			// plural
 			if (is_array($translation)) {
 
-				// choose the right form
+				$form = 0;
+
+				// choose the right plural form based on count
 				if ($count !== NULL) {
 					$form = $this->plural($count);
-				} else {
-					// chose max form
-					$form = count($translation) - 1;
 				}
 
-				// the right plural form may not be defined
-				if (!array_key_exists($form, $translation)) {
-					// use the last defined
+				// strict mode
+				if ($count === NULL && $this->throwExceptions) {
+					throw new TranslatorException('NULL count provided for parametrized plural message.');
+				}
+
+				// count is NULL (?) or plural form is not defined
+				if ($count === NULL || !array_key_exists($form, $translation)) {
+
+					// fallback to latest plural form defined
 					end($translation);
 					$form = key($translation);
 				}
@@ -196,10 +210,6 @@ final class Translator implements TranslatorInterface
 				$result = $message;
 			}
 
-		} else {
-
-			// use untranslated message as translation
-			$result = $message;
 		}
 
 		// process parameters
@@ -230,6 +240,7 @@ final class Translator implements TranslatorInterface
 	{
 		// special zero
 		if ($this->useSpecialZeroForm === true && $count === 0) {
+
 			return self::ZERO_INDEX;
 		}
 
@@ -248,7 +259,6 @@ final class Translator implements TranslatorInterface
 
 		// create php code from the schema
 		$code = preg_replace('/([a-z]+)/', '$$1', "n=$count; " . $scheme) . '; return (int) $plural;';
-
 		$this->evalCounter++;
 
 		return $this->evalCache[$cacheKey] = eval($code);
