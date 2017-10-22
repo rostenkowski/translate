@@ -67,7 +67,7 @@ Assert::same('Article author', $translator->translate('Article author'));
 
 // test: special form for the parametrized translation with count = 0 (zero)
 // special zero mode is opt-in
-$translator::$useSpecialZeroForm = true;
+$translator->useSpecialZeroForm = true;
 Assert::same("Čas vypršel", $translator->translate('You have %s seconds', 0));
 Assert::same("Máte 1 vteřinu", $translator->translate('You have %s seconds', 1));
 Assert::same("Máte 2 vteřiny", $translator->translate('You have %s seconds', 2));

@@ -53,6 +53,28 @@ translate:
   default: cs_CZ
 ```
 
+```php
+class MyPresenter {
+
+	public function __construct(ITranslator $t)
+	{
+		$this->translator = $t;
+	}
+
+	public function renderDefault()
+	{
+		$this->template->hi = $this->translator->translate('Hi!');
+	}
+}
+```
+
+### Advanced options
+
+You can use special plural form for the count of 0 (zero). 
+```php
+$translator->
+
+```
 
 ### Usage with plain PHP
 

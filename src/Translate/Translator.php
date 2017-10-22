@@ -11,7 +11,7 @@ final class Translator implements TranslatorInterface
 
 	public const ZERO_INDEX = -1;
 
-	public static $useSpecialZeroForm = false;
+	public $useSpecialZeroForm = false;
 
 	/**
 	 * current locale
@@ -229,7 +229,7 @@ final class Translator implements TranslatorInterface
 	private function plural(int $count): int
 	{
 		// special zero
-		if ($this::$useSpecialZeroForm === true && $count === 0) {
+		if ($this->useSpecialZeroForm === true && $count === 0) {
 			return self::ZERO_INDEX;
 		}
 
