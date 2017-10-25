@@ -91,29 +91,36 @@ final class Translator implements TranslatorInterface
 	}
 
 
-	public function translate($message, int $count = NULL): string
+	private function filter($message)
 	{
 		// avoid processing for empty values
 		if ($message === NULL || $message === '') {
-
 			return '';
-		}
-
-		// numbers are formatted using locale settings (count parameter is used to define decimals)
-		if (is_numeric($message)) {
-			return $this->formatNumber($message, (int) $count);
 		}
 
 		// convert to string
 		if (is_object($message) && method_exists($message, '__toString')) {
-			$message = (string) $message;
+			return (string) $message;
 		}
 
 		// check message to be string
-		if (!is_string($message)) {
+		if (!is_string($message) && !is_numeric($message)) {
 			$this->warn('Message must be string, but %s given.', gettype($message));
 
 			return '';
+		}
+
+		return $message;
+	}
+
+
+	public function translate($message, int $count = NULL): string
+	{
+		$message = $this->filter($message);
+
+		// numbers are formatted using locale settings (count parameter is used to define decimals)
+		if (is_numeric($message)) {
+			return $this->formatNumber($message, (int) $count);
 		}
 
 		// create dictionary on first access
