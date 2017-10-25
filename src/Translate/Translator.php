@@ -91,7 +91,7 @@ final class Translator implements TranslatorInterface
 	}
 
 
-	private function filter($message)
+	public function translate($message, int $count = NULL): string
 	{
 		// avoid processing for empty values
 		if ($message === NULL || $message === '') {
@@ -100,23 +100,14 @@ final class Translator implements TranslatorInterface
 
 		// convert to string
 		if (is_object($message) && method_exists($message, '__toString')) {
-			return (string) $message;
+			$message = (string) $message;
 		}
 
 		// check message to be string
 		if (!is_string($message) && !is_numeric($message)) {
 			$this->warn('Message must be string, but %s given.', gettype($message));
-
 			return '';
 		}
-
-		return $message;
-	}
-
-
-	public function translate($message, int $count = NULL): string
-	{
-		$message = $this->filter($message);
 
 		// numbers are formatted using locale settings (count parameter is used to define decimals)
 		if (is_numeric($message)) {
