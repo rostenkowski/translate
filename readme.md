@@ -11,15 +11,6 @@ High Performance Localization Component for [Nette Framework](https://nette.org)
 composer require rostenkowski/translate
 ```
 
-## Requirements
-
-- PHP 7.1+
-- nette/di
-- nette/neon
-- nette/safe-stream
-- nette/utils
-- nette/tester
-
 ## Translations 
 
 Translations are stored by default in *.neon files in this format:  
@@ -102,6 +93,14 @@ $translator->setLocale('cs_CZ');
 $translator->translate('Welcome!');
 ```
 
+## Requirements
+
+- PHP 7.1+
+- nette/di
+- nette/neon
+- nette/safe-stream
+- nette/utils
+- nette/tester
 
 ## Contributing
 
