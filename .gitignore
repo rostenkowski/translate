@@ -1,2 +1,3 @@
 tests/temp/cache
 vendor
+composer.lock

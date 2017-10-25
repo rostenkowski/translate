@@ -3,8 +3,11 @@
 namespace Rostenkowski\Translate;
 
 
+use Psr\Log\LoggerInterface;
 use Rostenkowski\Translate\NeonDictionary\NeonDictionaryFactory;
 use Tester\Assert;
+use const M_PI;
+use function spy;
 
 require __DIR__ . '/bootstrap.php';
 
@@ -53,20 +56,17 @@ Assert::equal('Máte 5 nepřečtených zpráv.',
 $message = 'You have %s unread articles.';
 Assert::same('Máte 5 nepřečtené články.', $translator->translate($message, 5));
 
-// test error: non-string message
-$message = [];
-Assert::exception(function () use ($translator, $message) {
-	$translator->translate($message);
-}, TranslatorException::class, sprintf("Message must be string, but %s given.", var_export($message, true)));
+// test error: non-string message in production mode
+Assert::same('', $translator->translate([]));
 
 // test: NULL count
 Assert::same('Máte %s nepřečtených zpráv.', $translator->translate('You have %s unread messages.', NULL));
 
 // test: NULL count in strict mode
 Assert::exception(function () use ($translator) {
-	$translator->throwExceptions = true;
+	$translator->setDebugMode(true);
 	$translator->translate('You have %s unread messages.', NULL);
-}, TranslatorException::class, 'NULL count provided for parametrized plural message.');
+}, TranslatorException::class, 'Multiple plural forms are available (message: You have %s unread messages.), but the $count is NULL.');
 
 // test: accidentally empty translation
 Assert::same('Article author', $translator->translate('Article author'));
@@ -74,7 +74,7 @@ Assert::same('Article author', $translator->translate('Article author'));
 // test: special form for the parametrized translation with count = 0 (zero)
 // special zero mode is opt-in
 $translator->useSpecialZeroForm = true;
-$translator->throwExceptions = true;
+$translator->setDebugMode(true);
 Assert::same("Čas vypršel", $translator->translate('You have %s seconds', 0));
 Assert::same("Máte 1 vteřinu", $translator->translate('You have %s seconds', 1));
 Assert::same("Máte 2 vteřiny", $translator->translate('You have %s seconds', 2));
@@ -86,4 +86,35 @@ Assert::same(5, $stats['evalCacheHitCounter']);
 Assert::same(6, $stats['evalCounter']);
 
 // test: string objects
-Assert::same('foo', $translator->translate(new class { function __toString() { return 'foo'; }}));
+Assert::same('foo', $translator->translate(new class
+{
+
+	function __toString() { return 'foo'; }
+}));
+
+// test: error: non-string message in debug mode
+Assert::exception(function () use ($translator, $message) {
+	$translator->translate([]);
+}, TranslatorException::class, 'Message must be string, but array given.');
+
+// test: psr logger
+$logger = spy(LoggerInterface::class);
+
+$translator->setDebugMode(false);
+$translator->setLogger($logger);
+$translator->translate([]);
+
+$logger->shouldHaveReceived()->warning('translator: Message must be string, but array given.');
+
+// test: format number
+$translator->setLocale('cs_CZ');
+Assert::same('3,14', $translator->translate(M_PI, 2));
+
+$translator->setLocale('de_DE');
+Assert::same('3,14', $translator->translate(M_PI, 2));
+
+$translator->setLocale('en_GB');
+Assert::same('3.14', $translator->translate(M_PI, 2));
+
+$translator->setLocale('en_US');
+Assert::same('3.14', $translator->translate(M_PI, 2));

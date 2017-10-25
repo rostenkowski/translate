@@ -7,10 +7,15 @@
     "nette/di": "^3.0",
     "nette/neon": "dev-master",
     "nette/safe-stream": "dev-master",
-    "nette/utils": "^3.0"
+    "nette/utils": "^3.0",
+    "psr/log": "^1.0"
   },
   "require-dev": {
-    "nette/tester": "dev-master"
+    "nette/tester": "dev-master",
+    "mockery/mockery": "^1.0@dev"
+  },
+  "suggest": {
+    "monolog/monolog": "To log translation errors."
   },
   "autoload": {
     "psr-4": {

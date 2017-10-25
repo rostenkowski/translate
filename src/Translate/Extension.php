@@ -40,6 +40,7 @@ class Extension extends CompilerExtension
 			->addDefinition($this->prefix('translator'))
 			->setFactory(Translator::class)
 			->addSetup('setLocale', [$config['default']])
+			->addSetup('setLocale', [$config['default']])
 			->setAutowired(true);
 
 	}

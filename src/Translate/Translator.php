@@ -3,20 +3,33 @@
 namespace Rostenkowski\Translate;
 
 
+use NumberFormatter;
+use Psr\Log\LoggerInterface;
 use function array_key_exists;
+use function array_shift;
 use function end;
+use function func_get_args;
+use function gettype;
+use function is_numeric;
 use function is_object;
 use function key;
 use function method_exists;
+use function sprintf;
 
 final class Translator implements TranslatorInterface
 {
 
 	public const ZERO_INDEX = -1;
 
+	/**
+	 * @var bool
+	 */
 	public $useSpecialZeroForm = false;
 
-	public $throwExceptions = false;
+	/**
+	 * @var bool
+	 */
+	public $debugMode = false;
 
 	/**
 	 * current locale
@@ -42,7 +55,6 @@ final class Translator implements TranslatorInterface
 	 */
 	private $defaultScheme = 'nplurals=2; plural=(n != 1)';
 
-
 	/**
 	 * @var int
 	 */
@@ -57,6 +69,18 @@ final class Translator implements TranslatorInterface
 	 * @var array
 	 */
 	private $evalCache = [];
+
+	/**
+	 * @var LoggerInterface
+	 */
+	private $logger;
+
+
+	public function setLogger(LoggerInterface $logger)
+	{
+		$this->logger = $logger;
+	}
+
 
 	/**
 	 * locale-indexed map of irregular plural schemas
@@ -146,6 +170,28 @@ final class Translator implements TranslatorInterface
 	}
 
 
+	private function warn($message)
+	{
+		// format message
+		$args = func_get_args();
+		if (count($args) > 1) {
+			array_shift($args);
+			$message = sprintf($message, ...$args);
+		}
+
+		// log to psr logger
+		if ($this->logger !== NULL) {
+			$message = 'translator: ' . $message;
+			$this->logger->warning($message);
+		}
+
+		// throw exception in debug mode
+		if ($this->isDebugMode()) {
+			throw new TranslatorException($message);
+		}
+	}
+
+
 	public function translate($message, int $count = NULL): string
 	{
 		// avoid processing for empty values
@@ -154,13 +200,24 @@ final class Translator implements TranslatorInterface
 			return '';
 		}
 
+		// numbers are formatted using locale settings (count parameter is used to define decimals)
+		if (is_numeric($message)) {
+			$formatter = new NumberFormatter($this->locale, NumberFormatter::DECIMAL);
+			$formatter->setAttribute(NumberFormatter::MIN_FRACTION_DIGITS, $count);
+			$formatter->setAttribute(NumberFormatter::MAX_FRACTION_DIGITS, $count);
+
+			return $formatter->format($message);
+		}
+
+		if (is_object($message) && method_exists($message, '__toString')) {
+			$message = (string) $message;
+		}
+
 		// check message to be string
 		if (!is_string($message)) {
-			if (is_object($message) && method_exists($message, '__toString')) {
-				$message = (string) $message;
-			} else {
-				throw new TranslatorException(sprintf("Message must be string, but %s given.", var_export($message, true)));
-			}
+			$this->warn('Message must be string, but %s given.', gettype($message));
+
+			return '';
 		}
 
 		// create dictionary on first access
@@ -177,9 +234,8 @@ final class Translator implements TranslatorInterface
 			// process plural
 			if (is_array($translation)) {
 
-				// strict mode
-				if ($count === NULL && $this->throwExceptions) {
-					throw new TranslatorException('NULL count provided for parametrized plural message.');
+				if ($count === NULL) {
+					$this->warn('Multiple plural forms are available (message: %s), but the $count is NULL.', $message);
 				}
 
 				// choose the right plural form based on count
@@ -188,10 +244,13 @@ final class Translator implements TranslatorInterface
 					$form = $this->plural($count);
 				}
 
-				// count is NULL (silent mode) or the right plural form is not defined for this translation
+				if (!array_key_exists($form, $translation)) {
+					$this->warn('Plural form not defined. (message: %s, form: %s)', $message, $form);
+				}
+
 				if ($count === NULL || !array_key_exists($form, $translation)) {
 
-					// fallback to the last plural form defined
+					// fallback to last defined
 					end($translation);
 					$form = key($translation);
 				}
@@ -205,11 +264,10 @@ final class Translator implements TranslatorInterface
 				$result = $translation;
 			}
 
-			// use untranslated message as translation for empty translation
+			// protection against accidentally empty-string translations
 			if ($result === '') {
 				$result = $message;
 			}
-
 		}
 
 		// process parameters
@@ -233,6 +291,18 @@ final class Translator implements TranslatorInterface
 		}
 
 		return $result;
+	}
+
+
+	public function isDebugMode(): bool
+	{
+		return $this->debugMode;
+	}
+
+
+	public function setDebugMode(bool $debugMode)
+	{
+		$this->debugMode = $debugMode;
 	}
 
 
