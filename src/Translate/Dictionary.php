@@ -28,6 +28,9 @@ abstract class Dictionary implements DictionaryInterface
 	}
 
 
+	abstract protected function lazyLoad();
+
+
 	protected function isReady()
 	{
 		return is_array($this->messages);

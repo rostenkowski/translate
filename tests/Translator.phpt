@@ -73,24 +73,15 @@ Assert::same('Article author', $translator->translate('Article author'));
 
 // test: special form for the parametrized translation with count = 0 (zero)
 // special zero mode is opt-in
-$translator->useSpecialZeroForm = true;
+$translator->setUseSpecialZeroForm(true);
 $translator->setDebugMode(true);
 Assert::same("Čas vypršel", $translator->translate('You have %s seconds', 0));
 Assert::same("Máte 1 vteřinu", $translator->translate('You have %s seconds', 1));
 Assert::same("Máte 2 vteřiny", $translator->translate('You have %s seconds', 2));
 Assert::same("Máte 5 vteřin", $translator->translate('You have %s seconds', 5));
 
-// test: eval cache hit counters
-$stats = $translator->getStats();
-Assert::same(5, $stats['evalCacheHitCounter']);
-Assert::same(6, $stats['evalCounter']);
-
 // test: string objects
-Assert::same('foo', $translator->translate(new class
-{
-
-	function __toString() { return 'foo'; }
-}));
+Assert::same('foo', $translator->translate(new class { function __toString() { return 'foo'; }}));
 
 // test: error: non-string message in debug mode
 Assert::exception(function () use ($translator, $message) {
@@ -106,7 +97,7 @@ $translator->translate([]);
 
 $logger->shouldHaveReceived()->warning('translator: Message must be string, but array given.');
 
-// test: format number
+// test: translate numbers
 $translator->setLocale('cs_CZ');
 Assert::same('3,14', $translator->translate(M_PI, 2));
 

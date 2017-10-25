@@ -19,17 +19,22 @@ use function sprintf;
 final class Translator implements TranslatorInterface
 {
 
-	public const ZERO_INDEX = -1;
+
+	private const ZERO_INDEX = -1;
 
 	/**
+	 * indicates whether to use special zero form for plural messages
+	 *
 	 * @var bool
 	 */
-	public $useSpecialZeroForm = false;
+	private $useSpecialZeroForm = false;
 
 	/**
+	 * indicates debug mode
+	 *
 	 * @var bool
 	 */
-	public $debugMode = false;
+	private $debugMode = false;
 
 	/**
 	 * current locale
@@ -39,156 +44,50 @@ final class Translator implements TranslatorInterface
 	private $locale = 'en_US';
 
 	/**
-	 * @var DictionaryInterface
+	 * @var PluralInterface
+	 */
+	private $plural;
+
+	/**
+	 * @var DictionaryInterface|NULL
 	 */
 	private $dictionary;
 
 	/**
-	 * @var NeonDictionaryFactory
+	 * @var DictionaryFactoryInterface
 	 */
 	private $dictionaryFactory;
 
 	/**
-	 * default plural schema (english-compatible)
-	 *
-	 * @var string
-	 */
-	private $defaultScheme = 'nplurals=2; plural=(n != 1)';
-
-	/**
-	 * @var int
-	 */
-	private $evalCounter = 0;
-
-	/**
-	 * @var int
-	 */
-	private $evalCacheHitCounter = 0;
-
-	/**
-	 * @var array
-	 */
-	private $evalCache = [];
-
-	/**
-	 * @var LoggerInterface
+	 * @var LoggerInterface|NULL
 	 */
 	private $logger;
 
 
-	public function setLogger(LoggerInterface $logger)
-	{
-		$this->logger = $logger;
-	}
-
-
-	/**
-	 * locale-indexed map of irregular plural schemas
-	 *
-	 * @var string[]
-	 */
-	private $schemas = [
-		// czech
-		'cs_CZ' => 'nplurals=3; plural=(n==1) ? 0 : ((n>=2 && n<=4) ? 1 : 2)',
-		// croatian
-		'cr_CR' => 'nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : (n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2))',
-		// french
-		'fr_FR' => 'nplurals=2; plural=(n > 1)',
-		// indonesian
-		'id_ID' => 'nplurals=1; plural=0',
-		// icelandic
-		'is_IS' => 'nplurals=2; plural=(n%10!=1 || n%100==11)',
-		// japanese
-		'ja_JP' => 'nplurals=1; plural=0',
-		// georgian
-		'ka_GE' => 'nplurals=1; plural=0',
-		// korean
-		'ko_KR' => 'nplurals=1; plural=0',
-		// lao
-		'lo_LA' => 'nplurals=1; plural=0',
-		// lithuanian
-		'lt_LT' => 'nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : (n%10>=2 && (n%100<10 or n%100>=20) ? 1 : 2))',
-		// macedonian
-		'mk_MK' => 'nplurals=2; plural= n==1 || n%10==1 ? 0 : 1',
-		// maltese
-		'mt_MT' => 'nplurals=4; plural=(n==1 ? 0 : (n==0 || ( n%100>1 && n%100<11) ? 1 : ((n%100>10 && n%100<20 ) ? 2 : 3)))',
-		// malay
-		'ms_MY' => 'nplurals=1; plural=0',
-		// burmese
-		'my_MM' => 'nplurals=1; plural=0',
-		// polish
-		'pl_PL' => 'nplurals=3; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4 && (n%100<10 || (n%100>=20) ? 1 : 2)))',
-		// slovak
-		'sk_SK' => 'nplurals=3; plural=(n==1) ? 0 : ((n>=2 && n<=4) ? 1 : 2)',
-		// slovenian
-		'sl_SL' => 'nplurals=4; plural=(n%100==1 ? 1 : ((n%100==2 ? 2 : n%100==3) || (n%100==4 ? 3 : 0)))',
-		// romanian
-		'ro_RO' => 'nplurals=3; plural=(n==1 ? 0 : ((n==0 || (n%100 > 0 && n%100 < 20)) ? 1 : 2));',
-		// russian
-		'ru_RU' => 'nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : (n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2))',
-		// thai
-		'th_TH' => 'nplurals=1; plural=0',
-		// turkish
-		'tr_TR' => 'nplurals=2; plural=(n>1)',
-		// ukrainian
-		'uk_UA' => 'nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : (n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2))',
-		// uzbek
-		'uz_UZ' => 'nplurals=2; plural=(n > 1)',
-		// vietnamese
-		'vi_VN' => 'nplurals=1; plural=0',
-		// chinese
-		'zh_CN' => 'nplurals=1; plural=0',
-	];
-
-
-	public function __construct(DictionaryFactoryInterface $dictionaryFactory)
+	public function __construct(DictionaryFactoryInterface $dictionaryFactory, LoggerInterface $logger = NULL, $debugMode = false)
 	{
 		$this->dictionaryFactory = $dictionaryFactory;
+		$this->logger = $logger;
+		$this->debugMode = $debugMode;
+
+		$this->plural = new Plural();
 	}
 
 
-	public function getStats()
+	public function setDebugMode(bool $debugMode)
 	{
-		return [
-			'evalCacheHitCounter' => $this->evalCacheHitCounter,
-			'evalCounter'         => $this->evalCounter,
-		];
+		$this->debugMode = $debugMode;
 	}
 
 
 	public function setLocale(string $locale): TranslatorInterface
 	{
 		if ($locale !== $this->locale) {
-
 			$this->locale = $locale;
-
-			// change locale -> unset current dictionary
 			$this->dictionary = NULL;
 		}
 
 		return $this;
-	}
-
-
-	private function warn($message)
-	{
-		// format message
-		$args = func_get_args();
-		if (count($args) > 1) {
-			array_shift($args);
-			$message = sprintf($message, ...$args);
-		}
-
-		// log to psr logger
-		if ($this->logger !== NULL) {
-			$message = 'translator: ' . $message;
-			$this->logger->warning($message);
-		}
-
-		// throw exception in debug mode
-		if ($this->isDebugMode()) {
-			throw new TranslatorException($message);
-		}
 	}
 
 
@@ -202,13 +101,10 @@ final class Translator implements TranslatorInterface
 
 		// numbers are formatted using locale settings (count parameter is used to define decimals)
 		if (is_numeric($message)) {
-			$formatter = new NumberFormatter($this->locale, NumberFormatter::DECIMAL);
-			$formatter->setAttribute(NumberFormatter::MIN_FRACTION_DIGITS, $count);
-			$formatter->setAttribute(NumberFormatter::MAX_FRACTION_DIGITS, $count);
-
-			return $formatter->format($message);
+			return $this->formatNumber($message, (int) $count);
 		}
 
+		// convert to string
 		if (is_object($message) && method_exists($message, '__toString')) {
 			$message = (string) $message;
 		}
@@ -241,7 +137,13 @@ final class Translator implements TranslatorInterface
 				// choose the right plural form based on count
 				$form = 0;
 				if ($count !== NULL) {
-					$form = $this->plural($count);
+
+					// special zero
+					if ($this->useSpecialZeroForm === true && $count === 0) {
+						$form = self::ZERO_INDEX;
+					} else {
+						$form = $this->plural->plural($this->locale, $count);
+					}
 				}
 
 				if (!array_key_exists($form, $translation)) {
@@ -294,44 +196,50 @@ final class Translator implements TranslatorInterface
 	}
 
 
-	public function isDebugMode(): bool
+	private function formatNumber($number, int $decimals = 0): string
 	{
-		return $this->debugMode;
+		$formatter = new NumberFormatter($this->locale, NumberFormatter::DECIMAL);
+		$formatter->setAttribute(NumberFormatter::MIN_FRACTION_DIGITS, $decimals);
+		$formatter->setAttribute(NumberFormatter::MAX_FRACTION_DIGITS, $decimals);
+
+		return $formatter->format($number);
 	}
 
 
-	public function setDebugMode(bool $debugMode)
+	private function warn($message)
 	{
-		$this->debugMode = $debugMode;
+		// format message
+		$args = func_get_args();
+		if (count($args) > 1) {
+			array_shift($args);
+			$message = sprintf($message, ...$args);
+		}
+
+		// log to psr logger
+		if ($this->logger !== NULL) {
+			$message = 'translator: ' . $message;
+			$this->logger->warning($message);
+		}
+
+		// throw exception in debug mode
+		if ($this->debugMode === true) {
+			throw new TranslatorException($message);
+		}
 	}
 
 
-	private function plural(int $count): int
+	public function setLogger(LoggerInterface $logger)
 	{
-		// special zero
-		if ($this->useSpecialZeroForm === true && $count === 0) {
+		$this->logger = $logger;
+	}
 
-			return self::ZERO_INDEX;
-		}
 
-		// cache eval results
-		if (array_key_exists($cacheKey = "$this->locale.$count", $this->evalCache)) {
-			$this->evalCacheHitCounter++;
-
-			return $this->evalCache[$cacheKey];
-		}
-
-		// evaluate schema
-		$schema = $this->defaultScheme;
-		if (isset($this->schemas[$this->locale])) {
-			$schema = $this->schemas[$this->locale];
-		}
-
-		// create php code from the schema
-		$code = preg_replace('/([a-z]+)/', '$$1', "n=$count; " . $schema) . '; return (int) $plural;';
-		$this->evalCounter++;
-
-		return $this->evalCache[$cacheKey] = eval($code);
+	/**
+	 * @param bool $useSpecialZeroForm
+	 */
+	public function setUseSpecialZeroForm(bool $useSpecialZeroForm)
+	{
+		$this->useSpecialZeroForm = $useSpecialZeroForm;
 	}
 
 }
