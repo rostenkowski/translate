@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+vendor/bin/phpstan analyse src/ --level 7
+
+rm -rf tests/temp
+mkdir tests/temp
+
+vendor/bin/tester -c tests/php-coverage.ini -s --coverage-src src/ --coverage ~/coverage-translate.html tests/
+
+if [[ $? != 0 ]]; then
+    exit $?;
+else
+    rm -rf tests/temp
+fi
