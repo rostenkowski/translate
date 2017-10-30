@@ -14,6 +14,7 @@ use function is_numeric;
 use function is_object;
 use function key;
 use function method_exists;
+use function ReturnTypes\returnAlias;
 use function sprintf;
 
 final class Translator implements TranslatorInterface
@@ -21,13 +22,6 @@ final class Translator implements TranslatorInterface
 
 
 	private const ZERO_INDEX = -1;
-
-	/**
-	 * indicates whether to use special zero form for plural messages
-	 *
-	 * @var bool
-	 */
-	private $useSpecialZeroForm = false;
 
 	/**
 	 * indicates debug mode
@@ -42,11 +36,6 @@ final class Translator implements TranslatorInterface
 	 * @var string
 	 */
 	private $locale = 'en_US';
-
-	/**
-	 * @var PluralInterface
-	 */
-	private $plural;
 
 	/**
 	 * @var DictionaryInterface|NULL
@@ -69,8 +58,6 @@ final class Translator implements TranslatorInterface
 		$this->dictionaryFactory = $dictionaryFactory;
 		$this->logger = $logger;
 		$this->debugMode = $debugMode;
-
-		$this->plural = new Plural();
 	}
 
 
@@ -103,15 +90,16 @@ final class Translator implements TranslatorInterface
 			$message = (string) $message;
 		}
 
-		// check message to be string
-		if (!is_string($message) && !is_numeric($message)) {
-			$this->warn('Message must be string, but %s given.', gettype($message));
-			return '';
-		}
-
 		// numbers are formatted using locale settings (count parameter is used to define decimals)
 		if (is_numeric($message)) {
 			return $this->formatNumber($message, (int) $count);
+		}
+
+		// check message to be string
+		if (!is_string($message)) {
+			$this->warn('Message must be string, but %s given.', gettype($message));
+
+			return '';
 		}
 
 		// create dictionary on first access
@@ -125,6 +113,9 @@ final class Translator implements TranslatorInterface
 
 			$translation = $this->dictionary->get($message);
 
+			// simple translation
+			$result = $translation;
+
 			// process plural
 			if (is_array($translation)) {
 
@@ -135,12 +126,11 @@ final class Translator implements TranslatorInterface
 				// choose the right plural form based on count
 				$form = 0;
 				if ($count !== NULL) {
-
 					// special zero
-					if ($this->useSpecialZeroForm === true && $count === 0) {
+					if ($count === 0 && array_key_exists(self::ZERO_INDEX, $translation)) {
 						$form = self::ZERO_INDEX;
 					} else {
-						$form = $this->plural->plural($this->locale, $count);
+						$form = $this->plural($count);
 					}
 				}
 
@@ -148,9 +138,8 @@ final class Translator implements TranslatorInterface
 					$this->warn('Plural form not defined. (message: %s, form: %s)', $message, $form);
 				}
 
+				// fallback form
 				if ($count === NULL || !array_key_exists($form, $translation)) {
-
-					// fallback to last defined
 					end($translation);
 					$form = key($translation);
 				}
@@ -158,10 +147,6 @@ final class Translator implements TranslatorInterface
 				// custom plural form translation
 				$result = $translation[$form];
 
-			} else {
-
-				// simple translation
-				$result = $translation;
 			}
 
 			// protection against accidentally empty-string translations
@@ -232,12 +217,66 @@ final class Translator implements TranslatorInterface
 	}
 
 
-	/**
-	 * @param bool $useSpecialZeroForm
-	 */
-	public function setUseSpecialZeroForm(bool $useSpecialZeroForm)
+	private function plural(int $n): int
 	{
-		$this->useSpecialZeroForm = $useSpecialZeroForm;
-	}
+		switch ($this->locale) {
 
+			// english (compatible)
+			default:
+				return $n === 1 ? 0 : 1;
+
+			case 'id_ID': // indonesian
+			case 'ja_JP': // japanese
+			case 'ka_GE': // georgian
+			case 'ko_KR': // korean
+			case 'lo_LA': // lao
+			case 'ms_MY': // malay
+			case 'my_MM': // burmese
+			case 'th_TH': // thai
+			case 'vi_VN': // vietnam
+			case 'zh_CN': // chinese (simplified)
+				return 0;
+
+			case 'cr_CR': // croatian
+			case 'ru_RU': // russian
+			case 'uk_UA': // ukrainian
+				return $n % 10 == 1 && $n % 100 !== 11 ? 0 : ($n % 10 >= 2 && $n % 10 <= 4 && ($n % 100 < 10 || $n % 100 >= 20) ? 1 : 2);
+
+			case 'fr_FR': // french
+			case 'tr_TR': // turkish
+			case 'uz_UZ': // uzbek
+ 				return $n > 1 ? 1 : 0;
+
+				// czech
+			case 'cs_CZ':
+				return $n === 1 ? 0 : (($n >= 2 && $n <= 4) ? 1 : 2);
+			// icelandic
+			case 'is_IS':
+				return ($n % 10 !== 1 || $n % 100 == 11) ? 1 : 0;
+			// lithuanian
+			case 'lt_LT':
+				return $n % 10 == 1 && $n % 100 !== 11 ? 0 : ($n % 10 >= 2 && ($n % 100 < 10 or $n % 100 >= 20) ? 1 : 2);
+			// latvian
+			case 'lv_LV':
+				return ($n % 10 === 1 && $n % 100 !== 11) ? 0 : ($n !== 0 ? 1 : 2);
+			// macedonian
+			case 'mk_MK':
+				return $n == 1 || $n % 10 == 1 ? 0 : 1;
+			// maltese
+			case 'mt_MT':
+				return $n == 1 ? 0 : ($n == 0 || ($n % 100 > 1 && $n % 100 < 11) ? 1 : (($n % 100 > 10 && $n % 100 < 20) ? 2 : 3));
+			// polish
+			case 'pl_PL':
+				return $n == 1 ? 0 : ($n % 10 >= 2 && $n % 10 <= 4 && ($n % 100 < 10 || ($n % 100 >= 20)) ? 1 : 2);
+			// slovak
+			case 'sk_SK':
+				return $n == 1 ? 0 : ($n >= 2 && $n <= 4 ? 1 : 2);
+			// slovenian
+			case 'sl_SL':
+				return $n % 100 == 1 ? 0 : ($n % 100 == 2 ? 1 : ($n % 100 == 3 || $n % 100 == 4 ? 2 : 3));
+			// romanian
+			case 'ro_RO':
+				return $n == 1 ? 0 : (($n == 0 || ($n % 100 > 0 && $n % 100 < 20)) ? 1 : 2);
+		}
+	}
 }
