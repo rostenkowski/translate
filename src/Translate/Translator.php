@@ -14,7 +14,6 @@ use function is_numeric;
 use function is_object;
 use function key;
 use function method_exists;
-use function ReturnTypes\returnAlias;
 use function sprintf;
 
 final class Translator implements TranslatorInterface
