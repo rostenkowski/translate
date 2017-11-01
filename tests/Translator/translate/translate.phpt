@@ -52,7 +52,7 @@ $message = 'I have %s dogs';
 Assert::same('Mám 5 psů', $t->translate($message, 5));
 
 // test error: non-string message in production mode
-Assert::same('', $t->translate([]));
+Assert::same('Message must be string, but array given.', $t->translate([]));
 
 // test: NULL count
 Assert::same('Máte %s nepřečtených zpráv.', $t->translate('You have %s unread messages.', NULL));

@@ -14,6 +14,7 @@ use function is_numeric;
 use function is_object;
 use function key;
 use function method_exists;
+use function ReturnTypes\returnAlias;
 use function sprintf;
 
 final class Translator implements TranslatorInterface
@@ -96,9 +97,7 @@ final class Translator implements TranslatorInterface
 
 		// check message to be string
 		if (!is_string($message)) {
-			$this->warn('Message must be string, but %s given.', gettype($message));
-
-			return '';
+			return $this->warn('Message must be string, but %s given.', gettype($message));
 		}
 
 		// create dictionary on first access
@@ -188,7 +187,7 @@ final class Translator implements TranslatorInterface
 	}
 
 
-	private function warn($message)
+	private function warn($message): string
 	{
 		// format message
 		$args = func_get_args();
@@ -207,6 +206,8 @@ final class Translator implements TranslatorInterface
 		if ($this->debugMode === true) {
 			throw new TranslatorException($message);
 		}
+
+		return $message;
 	}
 
 
