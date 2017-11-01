@@ -14,7 +14,6 @@ use function is_numeric;
 use function is_object;
 use function key;
 use function method_exists;
-use function ReturnTypes\returnAlias;
 use function sprintf;
 
 final class Translator implements TranslatorInterface
@@ -211,12 +210,6 @@ final class Translator implements TranslatorInterface
 	}
 
 
-	public function setLogger(LoggerInterface $logger)
-	{
-		$this->logger = $logger;
-	}
-
-
 	private function plural(int $n): int
 	{
 		switch ($this->locale) {
@@ -263,5 +256,11 @@ final class Translator implements TranslatorInterface
 			case 'ro_RO': // romanian
 				return $n == 1 ? 0 : (($n == 0 || ($n % 100 > 0 && $n % 100 < 20)) ? 1 : 2);
 		}
+	}
+
+
+	public function setLogger(LoggerInterface $logger)
+	{
+		$this->logger = $logger;
 	}
 }
