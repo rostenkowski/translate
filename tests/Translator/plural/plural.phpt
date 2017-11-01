@@ -3,119 +3,16 @@
 namespace Rostenkowski\Translate;
 
 
-use Psr\Log\LoggerInterface;
 use Rostenkowski\Translate\NeonDictionary\NeonDictionaryFactory;
 use Tester\Assert;
-use const M_PI;
-use function spy;
+use const TEMP_DIR;
 
-require __DIR__ . '/bootstrap.php';
+require __DIR__ . '/../../bootstrap.php';
 
 $dataDir = __DIR__ . '/translations';
-$tempDir = __DIR__ . '/temp/cache';
+$tempDir = TEMP_DIR;
 
 $t = new Translator(new NeonDictionaryFactory($dataDir, $tempDir));
-
-// test: simple message
-Assert::equal('Welcome!', $t->translate('Welcome!'));
-
-// test: plural forms
-Assert::equal('You have 1 unread message.',
-	$t->translate('You have %s unread messages.', 1));
-Assert::equal('You have 2 unread messages.',
-	$t->translate('You have %s unread messages.', 2));
-Assert::equal('You have 5 unread messages.',
-	$t->translate('You have %s unread messages.', 5));
-
-// test: process plural forms with parameters
-Assert::equal('You have 5 points. Thank you John!',
-	$t->translate('You have %s points. Thank you %s!', 5, 'John'));
-
-// test: process parameters for an untranslated message
-Assert::equal('Hi Bernardette!',
-	$t->translate('Hi %s!', NULL, 'Bernardette'));
-
-// custom locale
-$t->setLocale('cs_CZ');
-
-// test: empty message is allowed
-Assert::equal('', $t->translate(''));
-
-// test: simple message
-Assert::equal('Vítejte!', $t->translate('Welcome!'));
-
-// test: plural forms
-Assert::equal('Máte 1 nepřečtenou zprávu.',
-	$t->translate('You have %s unread messages.', 1));
-Assert::equal('Máte 2 nepřečtené zprávy.',
-	$t->translate('You have %s unread messages.', 2));
-Assert::equal('Máte 5 nepřečtených zpráv.',
-	$t->translate('You have %s unread messages.', 5));
-
-// test: undefined plural form
-$message = 'You have %s unread articles.';
-Assert::same('Máte 5 nepřečtené články.', $t->translate($message, 5));
-
-// test: plural translation (with count) defined as simple message (not array)
-// this may happen for languages without singular/plural
-$message = 'I have %s dogs';
-Assert::same('Mám 5 psů', $t->translate($message, 5));
-
-// test error: non-string message in production mode
-Assert::same('', $t->translate([]));
-
-// test: NULL count
-Assert::same('Máte %s nepřečtených zpráv.', $t->translate('You have %s unread messages.', NULL));
-
-// test: NULL count in debug mode
-Assert::exception(function () use ($t) {
-	$t->setDebugMode(true);
-	$t->translate('You have %s unread messages.', NULL);
-}, TranslatorException::class, 'Multiple plural forms are available (message: You have %s unread messages.), but the $count is NULL.');
-
-// test: accidentally empty translation
-Assert::same('Article author', $t->translate('Article author'));
-
-// test: special form for the parametrized translation with count = 0 (zero)
-$t->setDebugMode(true);
-Assert::same("Čas vypršel", $t->translate('You have %s seconds', 0));
-Assert::same("Máte 1 vteřinu", $t->translate('You have %s seconds', 1));
-Assert::same("Máte 2 vteřiny", $t->translate('You have %s seconds', 2));
-Assert::same("Máte 5 vteřin", $t->translate('You have %s seconds', 5));
-
-// test: string objects
-Assert::same('foo', $t->translate(new class
-{
-
-	function __toString() { return 'foo'; }
-}));
-
-// test: error: non-string message in debug mode
-Assert::exception(function () use ($t, $message) {
-	$t->translate([]);
-}, TranslatorException::class, 'Message must be string, but array given.');
-
-// test: psr logger
-$logger = spy(LoggerInterface::class);
-
-$t->setDebugMode(false);
-$t->setLogger($logger);
-$t->translate([]);
-
-$logger->shouldHaveReceived()->warning('translator: Message must be string, but array given.');
-
-// test: translate numbers
-$t->setLocale('cs_CZ');
-Assert::same('3,14', $t->translate(M_PI, 2));
-
-$t->setLocale('de_DE');
-Assert::same('3,14', $t->translate(M_PI, 2));
-
-$t->setLocale('en_GB');
-Assert::same('3.14', $t->translate(M_PI, 2));
-
-$t->setLocale('en_US');
-Assert::same('3.14', $t->translate(M_PI, 2));
 
 // test: plural
 $message = '%s bedrooms';
@@ -125,6 +22,20 @@ Assert::same('1 spavaća soba', $t->translate($message, 1));
 Assert::same('2 spavaće sobe', $t->translate($message, 2));
 Assert::same('5 spavaćih soba', $t->translate($message, 5));
 Assert::same('100 spavaćih soba', $t->translate($message, 100));
+
+// czech
+$t->setLocale('cs_CZ');
+Assert::same('1 ložnice', $t->translate($message, 1));
+Assert::same('2 ložnice', $t->translate($message, 2));
+Assert::same('5 ložnic', $t->translate($message, 5));
+Assert::same('100 ložnic', $t->translate($message, 100));
+
+// english
+$t->setLocale('en_US');
+Assert::same('1 bedroom', $t->translate($message, 1));
+Assert::same('2 bedrooms', $t->translate($message, 2));
+Assert::same('5 bedrooms', $t->translate($message, 5));
+Assert::same('100 bedrooms', $t->translate($message, 100));
 
 // french
 $t->setLocale('fr_FR');

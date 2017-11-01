@@ -1,0 +1,25 @@
+Welcome!: Vítejte!
+
+You have %s points %s:
+	- Máš %s bod %s
+	- Máš %s body %s
+	- Máš %s bodů %s
+
+You have %s unread messages.:
+	- Máte %s nepřečtenou zprávu.
+	- Máte %s nepřečtené zprávy.
+	- Máte %s nepřečtených zpráv.
+
+You have %s unread articles.:
+	- Máte %s nepřečtený článek.
+	- Máte %s nepřečtené články.
+
+Article author: ""
+
+You have %s seconds:
+	-1: Čas vypršel
+	- Máte 1 vteřinu
+	- Máte %s vteřiny
+	- Máte %s vteřin
+
+I have %s dogs: Mám %s psů
