@@ -5,6 +5,7 @@
   "require": {
     "php": ">=7.1",
     "ext-intl": "*",
+    "ext-tokenizer": "*",
     "nette/di": "^3.0",
     "nette/neon": "dev-master",
     "nette/safe-stream": "dev-master",
