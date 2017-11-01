@@ -56,13 +56,18 @@ Assert::equal('Máte 5 nepřečtených zpráv.',
 $message = 'You have %s unread articles.';
 Assert::same('Máte 5 nepřečtené články.', $t->translate($message, 5));
 
+// test: plural translation (with count) defined as simple message (not array)
+// this may happen for languages without singular/plural
+$message = 'I have %s dogs';
+Assert::same('Mám 5 psů', $t->translate($message, 5));
+
 // test error: non-string message in production mode
 Assert::same('', $t->translate([]));
 
 // test: NULL count
 Assert::same('Máte %s nepřečtených zpráv.', $t->translate('You have %s unread messages.', NULL));
 
-// test: NULL count in strict mode
+// test: NULL count in debug mode
 Assert::exception(function () use ($t) {
 	$t->setDebugMode(true);
 	$t->translate('You have %s unread messages.', NULL);

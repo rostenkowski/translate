@@ -220,11 +220,9 @@ final class Translator implements TranslatorInterface
 	private function plural(int $n): int
 	{
 		switch ($this->locale) {
-
 			// english (compatible)
 			default:
 				return $n === 1 ? 0 : 1;
-
 			case 'id_ID': // indonesian
 			case 'ja_JP': // japanese
 			case 'ka_GE': // georgian
@@ -236,46 +234,33 @@ final class Translator implements TranslatorInterface
 			case 'vi_VN': // vietnam
 			case 'zh_CN': // chinese (simplified)
 				return 0;
-
 			case 'cr_CR': // croatian
 			case 'ru_RU': // russian
 			case 'uk_UA': // ukrainian
 				return $n % 10 == 1 && $n % 100 !== 11 ? 0 : ($n % 10 >= 2 && $n % 10 <= 4 && ($n % 100 < 10 || $n % 100 >= 20) ? 1 : 2);
-
 			case 'fr_FR': // french
 			case 'tr_TR': // turkish
 			case 'uz_UZ': // uzbek
- 				return $n > 1 ? 1 : 0;
-
-				// czech
-			case 'cs_CZ':
+				return $n > 1 ? 1 : 0;
+			case 'cs_CZ': // czech
 				return $n === 1 ? 0 : (($n >= 2 && $n <= 4) ? 1 : 2);
-			// icelandic
-			case 'is_IS':
+			case 'is_IS': // icelandic
 				return ($n % 10 !== 1 || $n % 100 == 11) ? 1 : 0;
-			// lithuanian
-			case 'lt_LT':
+			case 'lt_LT': // lithuanian
 				return $n % 10 == 1 && $n % 100 !== 11 ? 0 : ($n % 10 >= 2 && ($n % 100 < 10 or $n % 100 >= 20) ? 1 : 2);
-			// latvian
-			case 'lv_LV':
+			case 'lv_LV': // latvian
 				return ($n % 10 === 1 && $n % 100 !== 11) ? 0 : ($n !== 0 ? 1 : 2);
-			// macedonian
-			case 'mk_MK':
+			case 'mk_MK': // macedonian
 				return $n == 1 || $n % 10 == 1 ? 0 : 1;
-			// maltese
-			case 'mt_MT':
+			case 'mt_MT': // maltese
 				return $n == 1 ? 0 : ($n == 0 || ($n % 100 > 1 && $n % 100 < 11) ? 1 : (($n % 100 > 10 && $n % 100 < 20) ? 2 : 3));
-			// polish
-			case 'pl_PL':
+			case 'pl_PL': // polish
 				return $n == 1 ? 0 : ($n % 10 >= 2 && $n % 10 <= 4 && ($n % 100 < 10 || ($n % 100 >= 20)) ? 1 : 2);
-			// slovak
-			case 'sk_SK':
+			case 'sk_SK': // slovak
 				return $n == 1 ? 0 : ($n >= 2 && $n <= 4 ? 1 : 2);
-			// slovenian
-			case 'sl_SL':
+			case 'sl_SL': // slovenian
 				return $n % 100 == 1 ? 0 : ($n % 100 == 2 ? 1 : ($n % 100 == 3 || $n % 100 == 4 ? 2 : 3));
-			// romanian
-			case 'ro_RO':
+			case 'ro_RO': // romanian
 				return $n == 1 ? 0 : (($n == 0 || ($n % 100 > 0 && $n % 100 < 20)) ? 1 : 2);
 		}
 	}
