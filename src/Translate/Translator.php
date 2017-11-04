@@ -227,14 +227,14 @@ final class Translator implements TranslatorInterface
 			case 'vi_VN': // vietnam
 			case 'zh_CN': // chinese (simplified)
 				return 0;
-			case 'cr_CR': // croatian
-			case 'ru_RU': // russian
-			case 'uk_UA': // ukrainian
-				return $n % 10 == 1 && $n % 100 !== 11 ? 0 : ($n % 10 >= 2 && $n % 10 <= 4 && ($n % 100 < 10 || $n % 100 >= 20) ? 1 : 2);
 			case 'fr_FR': // french
 			case 'tr_TR': // turkish
 			case 'uz_UZ': // uzbek
 				return $n > 1 ? 1 : 0;
+			case 'cr_CR': // croatian
+			case 'ru_RU': // russian
+			case 'uk_UA': // ukrainian
+				return $n % 10 == 1 && $n % 100 !== 11 ? 0 : ($n % 10 >= 2 && $n % 10 <= 4 && ($n % 100 < 10 || $n % 100 >= 20) ? 1 : 2);
 			case 'cs_CZ': // czech
 				return $n === 1 ? 0 : (($n >= 2 && $n <= 4) ? 1 : 2);
 			case 'is_IS': // icelandic

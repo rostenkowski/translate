@@ -7,7 +7,7 @@ use Rostenkowski\Translate\NeonDictionary\NeonDictionary;
 use Rostenkowski\Translate\NeonDictionary\NeonDictionaryException;
 use Tester\Assert;
 
-require __DIR__ . '/bootstrap.php';
+require __DIR__ . '/../bootstrap.php';
 
 // test error: invalid translation file
 $filename = __DIR__ . '/not-existing.neon';

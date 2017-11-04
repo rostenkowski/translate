@@ -5,14 +5,15 @@ namespace Rostenkowski\Translate;
 
 use Rostenkowski\Translate\NeonDictionary\NeonDictionaryException;
 use Rostenkowski\Translate\NeonDictionary\NeonDictionaryFactory;
+use const TEMP_DIR;
 use Tester\Assert;
 
-require __DIR__ . '/bootstrap.php';
+require __DIR__ . '/../bootstrap.php';
 
 // test: load dictionary from cache
 Assert::noError(function () {
 	$dataDir = __DIR__ . '/translations';
-	$cacheDir = __DIR__ . '/temp/cache';
+	$cacheDir = TEMP_DIR;
 	$factory = new NeonDictionaryFactory($dataDir, $cacheDir);
 	$cacheFile = "$cacheDir/cs_CZ.php";
 

@@ -8,11 +8,12 @@ use Nette\DI\ContainerLoader;
 use Nette\DI\Extensions\ExtensionsExtension;
 use Nette\Localization\ITranslator;
 use Nette\Utils\Finder;
+use const TEMP_DIR;
 use Tester\Assert;
 
-require __DIR__ . '/bootstrap.php';
+require __DIR__ . '/../bootstrap.php';
 
-$tempDir = __DIR__ . '/temp/cache';
+$tempDir = TEMP_DIR;
 
 // create container
 $loader = new  ContainerLoader($tempDir, true);
