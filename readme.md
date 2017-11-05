@@ -5,7 +5,6 @@ High Performance Localization Component for [Nette Framework](https://nette.org)
 [![Build Status](https://travis-ci.org/rostenkowski/translate.svg?branch=master)](https://travis-ci.org/rostenkowski/translate)
 [![Coverage Status](https://coveralls.io/repos/github/rostenkowski/translate/badge.svg)](https://coveralls.io/github/rostenkowski/translate)
 [![Code Climate](https://codeclimate.com/github/rostenkowski/translate/badges/gpa.svg)](https://codeclimate.com/github/rostenkowski/translate)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/rostenkowski/translate/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/rostenkowski/translate/?branch=master)
 
 ```bash
 composer require rostenkowski/translate

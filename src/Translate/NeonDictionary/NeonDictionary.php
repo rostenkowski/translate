@@ -3,6 +3,7 @@
 namespace Rostenkowski\Translate\NeonDictionary;
 
 
+use function is_array;
 use Nette\Neon\Neon;
 use Rostenkowski\Translate\Dictionary;
 
@@ -44,7 +45,8 @@ final class NeonDictionary extends Dictionary
 			} else {
 
 				// load translations from neon file
-				$translations = Neon::decode(file_get_contents($this->filename)) ?: [];
+				$decoded = Neon::decode(file_get_contents($this->filename));
+				$translations = is_array($decoded) ? $decoded: [];
 
 				// save cache
 				$content = '<?php ' . PHP_EOL . 'return ' . var_export($translations, true) . ';' . PHP_EOL;
