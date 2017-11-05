@@ -36,7 +36,7 @@ Put your translations to `%appDir%/translations` directory as `cs_CZ.neon` etc.
 ```yml
 # register extension
 extensions:
-  translate: Rostenkowski\Translate
+  translate: Rostenkowski\Translate\Extension
   
 # configuration
 translate:
