@@ -1,6 +1,7 @@
 # Translate 
 
-High Performance Localization Component for [Nette Framework](https://nette.org)
+Minimalistic yet powerful high performance message localization PHP 7.1+ component 
+not only for [Nette](https://nette.org) framework based apps.
 
 [![Build Status](https://travis-ci.org/rostenkowski/translate.svg?branch=master)](https://travis-ci.org/rostenkowski/translate)
 [![Coverage Status](https://coveralls.io/repos/github/rostenkowski/translate/badge.svg)](https://coveralls.io/github/rostenkowski/translate)
