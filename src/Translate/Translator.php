@@ -77,7 +77,7 @@ final class Translator implements TranslatorInterface
 	}
 
 
-	public function translate($message, int $count = NULL): string
+	public function translate($message, ...$parameters): string
 	{
 		// avoid processing for empty values
 		if ($message === NULL || $message === '') {
@@ -88,6 +88,8 @@ final class Translator implements TranslatorInterface
 		if (is_object($message) && method_exists($message, '__toString')) {
 			$message = (string) $message;
 		}
+
+		$count = isset($parameters[0]) ? $parameters[0] : NULL;
 
 		// numbers are formatted using locale settings (count parameter is used to define decimals)
 		if (is_numeric($message)) {
