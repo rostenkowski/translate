@@ -90,7 +90,7 @@ $translator->translate('Welcome!');
 vendor/bin/tester -c tests/php.ini tests/
 
 # code coverage report (requires xdebug)
-vendor/bin/tester -c tests/php-coverage.ini --coverage-src src/ --coverage ~/coverage-report.html tests/  
+vendor/bin/tester -c tests/php-coverage.ini --coverage-src src/ --coverage ~/report.html tests/  
 
 # remove test artifacts
 rm -rf tests/temp/cache/
